@@ -1,4 +1,4 @@
-# 🏦 Banking Ledger System — Backend
+# 🏦 Banking Transaction/Ledger System — Backend
 
 A robust **RESTful backend API** for a banking transaction and ledger management system. Built with **Node.js**, **Express**, **MongoDB**, and **Nodemailer**, this system handles user registration, authentication, financial transactions, and automated email notifications.
 
