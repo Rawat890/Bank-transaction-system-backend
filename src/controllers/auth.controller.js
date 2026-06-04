@@ -2,6 +2,7 @@ import userModel from "../models/user.model.js";
 import { JWT_SECRET } from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
+import { sendRegisterationEmail } from "../services/email.service.js";
 
 /**
  * - user register controller
@@ -24,10 +25,10 @@ export async function userRegisterController(req, res) {
         message: "User already exists with the email",
         status: "failed"
       })
-      // 422 
+      // 422 is for unprocessable entity, which means the request was well-formed but was unable to be followed due to semantic errors
     }
 
-    const user = userModel.create({
+    const user = await userModel.create({
       email, password, name
     })
 
@@ -43,6 +44,9 @@ export async function userRegisterController(req, res) {
       },
       token
     })
+
+    // send registration email to the user
+    await sendRegisterationEmail(user.email, user.name);
   } catch (error) {
     console.log("\nUser registration error - ", error)
     res.status(500).json({
@@ -50,8 +54,6 @@ export async function userRegisterController(req, res) {
     })
   }
 }
-
-
 
 /**
  * - user login controller
@@ -62,7 +64,8 @@ export async function userLoginController(req, res) {
   try {
     const { email, password } = req.body;
 
-    const user = userModel.findOne({ email });
+    //to get the password in user data
+    const user = userModel.findOne({ email }).select("+password");
 
     // it checks whether user exists with the email or not, if not then it will return 401
     if (!user) {
