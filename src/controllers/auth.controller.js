@@ -3,6 +3,7 @@ import { JWT_SECRET } from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
 import { sendRegisterationEmail } from "../services/email.service.js";
+import tokenBlackListModel from "../models/tokenblacklist.model.js";
 
 /**
  * - user register controller
@@ -102,4 +103,27 @@ export async function userLoginController(req, res) {
       message: 'Unable to fulfil the request at the moment, Please try again later'
     })
   }
+}
+
+/**
+ * - User logout controller
+ * - POST /api/auth/logout
+ */
+
+export async function userLogoutController(req, res) {
+  const token = req.cookies?.token || req.headers?.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(200).json({
+      message: "User logged out successfully"
+    })
+  }
+
+  await tokenBlackListModel.create({
+    token: token
+  })
+
+  res.clearCookie("token")
+  res.status(200).json({
+    message: "User logged out successfully"
+  })
 }
