@@ -29,7 +29,7 @@ const transactionSchema = new mongoose.Schema({
  },
 
  // a transaction has only one key, it prevents duplicate transactions
- idempotencykey: {
+ idempotencyKey: {
   type: String,
   required: [true, "Idempotency key is required ofr creating a transaction"],
   index: true,
