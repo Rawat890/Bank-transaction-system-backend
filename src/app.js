@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRouter from './routes/auth.routes.js';
 import accountRouter from './routes/account.routes.js';
 import cookieParser from 'cookie-parser';
+import transactionRouter from './routes/transaction.routes.js';
 
 const app = express();
 app.use(express.json());
@@ -18,5 +19,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/accounts", accountRouter);
 //mount accountRouter on /api/accounts path. All routes defined in accountRouter will be prefixed with /api/accounts
 
-
+app.use("/api/transactions", transactionRouter);
+//mount transactionRouter on /api/transactions path.
 export default app;
