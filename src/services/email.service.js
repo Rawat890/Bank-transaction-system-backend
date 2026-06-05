@@ -62,3 +62,19 @@ export const sendRegisterationEmail = async (userEmail, name) => {
 
  await sendEmail(userEmail, subject, text, html);
 }
+
+export const sendTransactionEmail = async (userEmail, name, amount, toAmount) => {
+ const subject = 'Transaction Completed';
+ const text = `Dear ${name},\n\nYour transaction of amount ${amount} has been completed successfully. The recipient's account has been credited with ${toAmount}.\n\nThank you for using our service.\n\nBest regards,\nBackend Transaction System Team`;
+ const html = `<p>Dear ${name},</p><p>Your transaction of amount ${amount} has been completed successfully. The recipient's account has been credited with ${toAmount}.</p><p>Thank you for using our service.</p><p>Best regards,</p><p>Backend Transaction System Team</p>`;
+
+ await sendEmail(userEmail, subject, text, html);
+}
+
+export const sendTransactionFailedEmail = async (userEmail, name, amount) => {
+ const subject = 'Transaction Failed';
+ const text = `Dear ${name},\n\nYour transaction of amount ${amount} has failed. Please try again later.\n\nBest regards,\nBackend Transaction System Team`;
+ const html = `<p>Dear ${name},</p><p>Your transaction of amount ${amount} has failed. Please try again later.</p><p>Best regards,</p><p>Backend Transaction System Team</p>`;
+
+ await sendEmail(userEmail, subject, text, html);
+}
