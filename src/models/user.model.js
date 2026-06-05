@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema({
   maxlength: [100, 'Password must not exceed 100 characters'],
   select: false, // exclude password from query results by default till we explicitly selects it for auth
  },
+ systemUser: {
+  type: boolean,
+  default: false,
+  immutable: true,
+  select: false
+ }
 }, {
  timestamps: true //automatically adds createdAt and updatedAt fields to schema
 })
@@ -45,10 +51,10 @@ userSchema.pre("save", async function () {
 
 //hashing password - It is important to hash passwords before storing them in database to enhance security and protect user data in case of a data breach. Hashing transforms the password into a fixed length string of characters that is not reversible, making it difficult retrieve original password. Prevents unauthorized access to user accounts.
 
-userSchema.methods.comparePassword = async function(password){
-return bcrypt.compare(password, this.password); 
-// compares the password and passord hash stored in database
+userSchema.methods.comparePassword = async function (password) {
+ return bcrypt.compare(password, this.password);
+ // compares the password and passord hash stored in database
 }
 
-const userModel = mongoose.model('User', userSchema);
+const userModel = mongoose.model('user', userSchema);
 export default userModel;
