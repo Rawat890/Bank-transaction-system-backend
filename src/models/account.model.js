@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import ledgerModel from '../models/ledger.model.js'
 
 const accountSchema = new mongoose.Schema({
  user: {
@@ -29,6 +30,47 @@ const accountSchema = new mongoose.Schema({
 
 // indexes created on user and status fields - COMPOUND INDEX
 accountSchema.index({ user: 1, status: 1 }) // user: 1 is used to create an index on user field in ascending order. status:1 is used for status field
+
+// this method is used to get the balance 
+accountSchema.methods.getBalance = async function () {
+ const balanceData = await ledgerModel.aggregate([
+  { $match: { account: this._id } }, // this line is used to match the account id with the account id of the ledger collection
+  {
+   $group: {
+    _id: null,
+    totalDebit: {
+     $sum: { $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0] }
+    },
+    totalCredit: {
+     $sum: { $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0] }
+    },
+   },
+  },
+  {
+   $project: {
+    _id: 0,
+    balance: { $subtract: ['$totalCredit', '$totalDebit'] }
+   }
+  }
+ ])
+
+ if(balanceData.length === 0) return 0;
+ return balanceData[0].balance;
+}
+
+/* This code snippet defines a method called 
+getBalance
+d:\Bank-transaction-system-backend\src\models\account.model.js
+ on the accountSchema object. This method is an asynchronous function that calculates the balance of an account by querying the ledgerModel collection.
+
+Here's a breakdown of what the code does:
+
+It uses the aggregate method of the ledgerModel collection to perform a series of operations on the data.
+The $match stage filters the documents in the ledgerModel collection based on the account field matching the _id of the current account instance.
+The $group stage groups the filtered documents by _id (which is set to null in this case) and calculates the sum of the amount field for documents with a type of "DEBIT" and "CREDIT" respectively.
+The $project stage shapes the result of the aggregation pipeline by excluding the _id field and calculating the balance as the difference between totalCredit and totalDebit.
+Overall, this code snippet allows an account instance to retrieve its balance by querying the ledgerModel collection. */
+
 const accountModel = mongoose.model("account", accountSchema);
 
 export default accountModel;
