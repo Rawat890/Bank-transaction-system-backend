@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const tokenBlacklistSchema = new mongoose.Schema({
- toke: {
+ token: {
   type: String,
   unique: [true, "Token is already blacklisted"],
   required: [true, "Toke is requiored to blacklist"]
