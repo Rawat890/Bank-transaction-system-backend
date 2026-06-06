@@ -32,29 +32,31 @@ const accountSchema = new mongoose.Schema({
 accountSchema.index({ user: 1, status: 1 }) // user: 1 is used to create an index on user field in ascending order. status:1 is used for status field
 
 // this method is used to get the balance 
-accountSchema.methods.getBalance = async function () {
- const balanceData = await ledgerModel.aggregate([
-  { $match: { account: this._id } }, // this line is used to match the account id with the account id of the ledger collection
-  {
-   $group: {
-    _id: null,
-    totalDebit: {
-     $sum: { $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0] }
-    },
-    totalCredit: {
-     $sum: { $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0] }
-    },
+let getBalancePipeline = [
+ { $match: { account: this._id } }, // this line is used to match the account id with the account id of the ledger collection
+ {
+  $group: {
+   _id: null,
+   totalDebit: {
+    $sum: { $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0] }
+   },
+   totalCredit: {
+    $sum: { $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0] }
    },
   },
-  {
-   $project: {
-    _id: 0,
-    balance: { $subtract: ['$totalCredit', '$totalDebit'] }
-   }
+ },
+ {
+  $project: {
+   _id: 0,
+   balance: { $subtract: ['$totalCredit', '$totalDebit'] }
   }
- ])
+ }
+]
 
- if(balanceData.length === 0) return 0;
+accountSchema.methods.getBalance = async function () {
+ const balanceData = await ledgerModel.aggregate(getBalancePipeline);
+
+ if (balanceData.length === 0) return 0;
  return balanceData[0].balance;
 }
 
